@@ -1,0 +1,12 @@
+---
+- name: "Playing with Ansible and Git 77"
+  hosts: localhost
+  connection: local 
+  tasks:
+    - name: "send email"
+      community.general.mail:
+        host: 127.0.0.1
+        port: 25
+        to: 'cyhuangan@vis.com.tw'
+        subject: 'collection test'
+        body: 'test pass'
