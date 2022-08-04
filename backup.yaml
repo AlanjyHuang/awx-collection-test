@@ -1,0 +1,32 @@
+---
+- name: run multiple commands on remote devices
+  hosts: sw-g1
+  gather_facts: false
+  connection: local
+
+  tasks:
+   - name: timestamp
+     local_action: command date +%Y%m%d
+     register: timestamp
+
+   - name: create local directory
+     file:
+       path: ./ansible_output/{{ timestamp.stdout }}
+       state: directory
+       mode: 0755
+
+   - name: cisco config backup
+     ios_command:
+       commands:
+         - show run
+
+     register: print_output
+
+   - debug: var=print_output.stdout_lines
+
+   - name: save output to a file
+     copy: content="{{ print_output.stdout[0] }}" dest="./ansible_output/{{ timestamp.stdout }}/{{ inventory_hostname }}_{{ timestamp.stdout }}.txt"
+
+   - name: set crontab for target
+     cron: name='backup cisco config' minute=5 hour=0 job='/etc/ansible/backup.yml'
+
